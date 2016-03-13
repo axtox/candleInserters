@@ -1,7 +1,6 @@
 require "defines"
 
 local showOnBuilt = true
---local showOnRotated = true
 
 local next = next
 local inserterTypes = { 
@@ -14,9 +13,9 @@ local inserterTypes = {
 	["candle-advanced-inserter"] = { type = "advanced" }, 
 }
 local gridTables = { 
-	advanced = { true, true, true, true, true, true, true, true, true, true, true, true, "base", true, true, true, true, true, true, true, true, true, true, true, true },
-	long = { true, true, true, true, true, true, false, false, false, true, true, false, "base", false, true, true, false, false, false, true, true, true, true, true, true },
-	normal = { false, false, false, false, false, false, true, true, true, false, false, true, "base", true, false, false, true, true, true, false, false, false, false, false, false }
+	advanced = { true, true, true, true, true, true, true, true, true, true, true, true, false, true, true, true, true, true, true, true, true, true, true, true, true },
+	long = { true, true, true, true, true, true, false, false, false, true, true, false, false, false, true, true, false, false, false, true, true, true, true, true, true },
+	normal = { false, false, false, false, false, false, true, true, true, false, false, true, false, true, false, false, true, true, true, false, false, false, false, false, false }
 }
 
 local function createInserterGrid(parent, gridTableName, inserterType)
@@ -24,7 +23,7 @@ local function createInserterGrid(parent, gridTableName, inserterType)
 	local newInserterGrid = parent.add({ type = "table", name = gridTableName, colspan = 5, style = "lyr_gridTable" })
 	
 	for gridNumber, gridType in next, gridTable do
-		if gridType == "base" then
+		if gridNumber == 13 then
 			newInserterGrid.add({ type = "checkbox", name = "invalidGrid_"..gridNumber, state = false, style = "lyr_baseGrid" })
 		elseif gridType then
 			newInserterGrid.add({ type = "checkbox", name = "inserterGrid_"..gridNumber, state = false, style = "lyr_validGrid" })
@@ -116,7 +115,7 @@ local function onGUIClick(event)
 		local active = tonumber(elementName:sub(14))
 		
 		for gridNumber = 1, 25 do
-			if gridNumber ~= 13 and gridNumber ~= active and parent["inserterGrid_"..gridNumber] then
+			if gridNumber ~= active and parent["inserterGrid_"..gridNumber] then
 				parent["inserterGrid_"..gridNumber].state = false
 			end
 		end
@@ -124,11 +123,11 @@ local function onGUIClick(event)
 		local pickupGrid, insertGrid 
 		
 		for gridNumber = 1, 25 do
-			if gridNumber ~= 13 and parent["pickupGridTable"]["inserterGrid_"..gridNumber] and parent["insertGridTable"]["inserterGrid_"..gridNumber] then
-				if parent["pickupGridTable"]["inserterGrid_"..gridNumber].state then
+			if parent.pickupGridTable["inserterGrid_"..gridNumber] and parent.insertGridTable["inserterGrid_"..gridNumber] then
+				if parent.pickupGridTable["inserterGrid_"..gridNumber].state then
 					pickupGrid = gridNumber
 				end
-				if parent["insertGridTable"]["inserterGrid_"..gridNumber].state then
+				if parent.insertGridTable["inserterGrid_"..gridNumber].state then
 					insertGrid = gridNumber
 				end
 			end
@@ -138,7 +137,7 @@ local function onGUIClick(event)
 			local playerIndex = event.player_index
 			local inserterTable = global.candle[playerIndex]
 			local inserterEntity, inserterName, inserterProperties = inserterTable.inserterEntity, inserterTable.inserterName, inserterTable.inserterProperties
-			local insertType = parent["candleNear"].state and "near" or "far"
+			local insertType = parent.candleNear.state and "near" or "far"
 			local lyr = false
 			
 			if inserterProperties.isSmart then
@@ -151,27 +150,6 @@ local function onGUIClick(event)
 				end
 				
 				lyr = inserterEntity.surface.create_entity{ name = inserterName.."_"..pickupGrid.."_"..insertGrid.."_"..insertType, position = inserterEntity.position, force = inserterEntity.force, filters = inserterFilters, conditions = inserterConditions }
-				
-				--[[
-				neighbours does not work for inserters. 
-				a greedy solution: look at every chunk that a cable can reach to this inserter
-				if a wireable entity is found, check if it is connected to inserter
-				go back to the original problem; neighbours does not work for anything else than poles/pipes/belts
-				so if an inserter is wired to another for example, now have the same problem
-				maybe it is not the neighbours to get the "connected" information?
-				]]--
-				
-				--lyr = inserterEntity.surface.create_entity{ name = newInserterName, position = inserterEntity.position, force = inserterEntity.force, filters = inserterFilters, conditions = inserterConditions }
-				
-				-- local inserterNeighbours = inserterEntity.neighbours
-				
-				-- if inserterNeighbours and next(inserterNeighbours) then
-					-- for index, neighbour in next, inserterNeighbours do
-						-- newInserterEntity.connect_neighbour(neighbour)
-					-- end
-				-- elseif inserterNeighbours then
-					-- newInserterEntity.connect_neighbour(neighbour)
-				-- end
 			else
 				lyr = inserterEntity.surface.create_entity{ name = inserterName.."_"..pickupGrid.."_"..insertGrid.."_"..insertType, position = inserterEntity.position, force = inserterEntity.force }
 			end
@@ -192,6 +170,5 @@ end
 
 script.on_init(onInitialize)
 if showOnBuilt then script.on_event(defines.events.on_built_entity, onBuiltEntity) end
---if showOnRotated then script.on_event(defines.events.on_player_rotated_entity, onRotatedEntity) end
 script.on_event(defines.events.on_player_rotated_entity, onRotatedEntity)
 script.on_event(defines.events.on_gui_click, onGUIClick)
