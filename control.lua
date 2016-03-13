@@ -1,7 +1,7 @@
 require "defines"
 
 local showOnBuilt = true
-local showOnRotate = true
+--local showOnRotated = true
 
 local next = next
 local inserterTypes = { 
@@ -58,13 +58,11 @@ local function programmingInterface(player, inserterType, gridStates)
 	end
 end
 
-script.on_init(function()
+local function onInitialize()
 	if not global.candle then global.candle = {} end
-end)
+end
 
-script.on_event(defines.events.on_built_entity, function(event)
-	if not showOnBuilt then return end
-	
+local function onBuiltEntity(event)	
 	local inserterEntity = event.created_entity
 	local inserterName = inserterEntity.name
 
@@ -76,11 +74,9 @@ script.on_event(defines.events.on_built_entity, function(event)
 		global.candle[playerIndex] = {inserterEntity = inserterEntity, inserterName = inserterName, inserterProperties = {}}
 		programmingInterface(player, inserterTypes[inserterName].type) 
 	end
-end)
+end
 
-script.on_event(defines.events.on_player_rotated_entity, function(event)
-	if not showOnRotate then return end
-	
+local function onRotatedEntity(event)
 	local inserterEntity = event.entity
 	local inserterName = inserterEntity.name
 	
@@ -108,9 +104,9 @@ script.on_event(defines.events.on_player_rotated_entity, function(event)
 		global.candle[playerIndex].inserterName = inserterName
 		programmingInterface(player, inserterTypes[inserterName].type, gridStates)
 	end
-end)
+end
 
-script.on_event(defines.events.on_gui_click, function(event)
+local function onGUIClick(event)
 	local element = event.element
 	local parent = element.parent
 	local window = parent.parent
@@ -192,4 +188,10 @@ script.on_event(defines.events.on_gui_click, function(event)
 		global.candle[event.player_index] = {inserterEntity = false, inserterName = "", inserterProperties = {}}
 		window.destroy()
 	end
-end)
+end
+
+script.on_init(onInitialize)
+if showOnBuilt then script.on_event(defines.events.on_built_entity, onBuiltEntity) end
+--if showOnRotated then script.on_event(defines.events.on_player_rotated_entity, onRotatedEntity) end
+script.on_event(defines.events.on_player_rotated_entity, onRotatedEntity)
+script.on_event(defines.events.on_gui_click, onGUIClick)
