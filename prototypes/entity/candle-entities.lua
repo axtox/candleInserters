@@ -288,6 +288,33 @@ local inserterEntities = {
 	}
 }
 
+local function generateItem(inserterName, quantifiedName)
+	local itemTemplate = { 
+		type = "item", 
+		name = quantifiedName, 
+		icon = "__K&L-Inserters__/graphics/icons/"..inserterName..".png", 
+		flags = { "goes-to-quickbar" }, 
+		subgroup = "inserter", 
+		order = "x", 
+		place_result = quantifiedName, 
+		stack_size = 50
+	}
+	
+	data.raw.item[quantifiedName] = itemTemplate
+end
+
+local function generateRecipe(inserterName, quantifiedName)
+	local recipeTemplate = { 
+		type = "recipe", 
+		name = quantifiedName, 
+		enabled = false, 
+		ingredients = { { inserterName, 1 } }, 
+		result = quantifiedName
+	}
+	
+	data.raw.recipe[quantifiedName] = recipeTemplate
+end
+
 local function quantifyInserter(inserterName, inserterType, inserterEntity)
 	local pickupTable, insertTables, gridTable = pickupTable, insertTables, gridTables[inserterType]
 	
@@ -299,12 +326,14 @@ local function quantifyInserter(inserterName, inserterType, inserterEntity)
 				if gridTable[insertGrid] and gridTable[pickupGrid] and pickupGrid ~= insertGrid then
 					inserterEntity = util.table.deepcopy(data.raw["inserter"]["candle-"..inserterName.."-inserter"])
 					inserterEntity.name = "candle-"..inserterName.."-inserter_"..pickupGrid.."_"..insertGrid.."_"..insertType
+					generateItem("candle-"..inserterName.."-inserter", inserterEntity.name)
+					--generateRecipe("candle-"..inserterName.."-inserter", inserterEntity.name)
 					
 					if not data.raw[inserterEntity.type][inserterEntity.name] then
 						inserterEntity.order = "x"	-- ???
 						inserterEntity.pickup_position = pickupValues
 						inserterEntity.insert_position = insertValues
-						data.raw[inserterEntity.type][inserterEntity.name] = inserterEntity
+						data.raw.inserter[inserterEntity.name] = inserterEntity
 					end
 				end
 			end
