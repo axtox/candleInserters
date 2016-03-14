@@ -448,13 +448,13 @@ local function registerPrototypes(inserterPrototypes, prototypeName)
 						data.raw.item[inserterName] = prototypeItem
 					end
 					
-					if not data.raw.inserter[inserterName] then
-						prototypeEntity = util.table.deepcopy(data.raw.inserter[prototypeName])
-						prototypeEntity.name = inserterName
-						prototypeEntity.pickup_position = pickupValues
-						prototypeEntity.insert_position = insertValues
-						data.raw.inserter[inserterName] = prototypeEntity
-					end
+					-- if not data.raw.inserter[inserterName] then
+						-- prototypeEntity = util.table.deepcopy(data.raw.inserter[prototypeName])
+						-- prototypeEntity.name = inserterName
+						-- prototypeEntity.pickup_position = pickupValues
+						-- prototypeEntity.insert_position = insertValues
+						-- data.raw.inserter[inserterName] = prototypeEntity
+					-- end
 				end
 			end
 		end
