@@ -54,7 +54,7 @@ local inserterTables = {
 			icon = "__K&L-Inserters__/graphics/icons/candle-basic-inserter.png", 
 			flags = { "goes-to-quickbar" }, 
 			subgroup = "inserter", 
-			order = "x", 
+			order = "x-c-a", 
 			place_result = "candle-basic-inserter", 
 			stack_size = 50
 		},
@@ -111,7 +111,7 @@ local inserterTables = {
 			icon = "__K&L-Inserters__/graphics/icons/candle-fast-inserter.png", 
 			flags = { "goes-to-quickbar" }, 
 			subgroup = "inserter", 
-			order = "x", 
+			order = "x-c-c", 
 			place_result = "candle-fast-inserter", 
 			stack_size = 50
 		},
@@ -172,7 +172,7 @@ local inserterTables = {
 			icon = "__K&L-Inserters__/graphics/icons/candle-smart-inserter.png", 
 			flags = { "goes-to-quickbar" }, 
 			subgroup = "inserter", 
-			order = "x", 
+			order = "x-c-e", 
 			place_result = "candle-smart-inserter", 
 			stack_size = 50
 		},
@@ -230,7 +230,7 @@ local inserterTables = {
 			icon = "__K&L-Inserters__/graphics/icons/candle-basic-long-inserter.png", 
 			flags = { "goes-to-quickbar" }, 
 			subgroup = "inserter", 
-			order = "x", 
+			order = "x-c-b", 
 			place_result = "candle-basic-long-inserter", 
 			stack_size = 50
 		},
@@ -288,7 +288,7 @@ local inserterTables = {
 			icon = "__K&L-Inserters__/graphics/icons/candle-fast-long-inserter.png", 
 			flags = { "goes-to-quickbar" }, 
 			subgroup = "inserter", 
-			order = "x", 
+			order = "x-c-d", 
 			place_result = "candle-fast-long-inserter", 
 			stack_size = 50
 		},
@@ -350,7 +350,7 @@ local inserterTables = {
 			icon = "__K&L-Inserters__/graphics/icons/candle-smart-long-inserter.png", 
 			flags = { "goes-to-quickbar" }, 
 			subgroup = "inserter", 
-			order = "x", 
+			order = "x-c-f", 
 			place_result = "candle-smart-long-inserter", 
 			stack_size = 50
 		},
@@ -412,7 +412,7 @@ local inserterTables = {
 			icon = "__K&L-Inserters__/graphics/icons/candle-advanced-inserter.png", 
 			flags = { "goes-to-quickbar" }, 
 			subgroup = "inserter", 
-			order = "x", 
+			order = "x-c-g", 
 			place_result = "candle-advanced-inserter", 
 			stack_size = 50
 		},
@@ -431,8 +431,8 @@ local function quantifyInserter(inserterPrototypes, inserterName)
 	local pickupTable, insertTables, gridTable = pickupTable, insertTables, gridTables[inserterPrototypes.type]
 	local inserterEntity, inserterItem, inserterRecipe = inserterPrototypes.entity, inserterPrototypes.item, inserterPrototypes.recipe
 	
-	data.raw.inserter[inserterName] = inserterEntity
 	data.raw.item[inserterName] = inserterItem
+	data.raw.inserter[inserterName] = inserterEntity
 	data.raw.recipe[inserterName] = inserterRecipe
 	
 	for insertType, insertTable in next, insertTables do
@@ -441,21 +441,19 @@ local function quantifyInserter(inserterPrototypes, inserterName)
 				if gridTable[insertGrid] and gridTable[pickupGrid] and pickupGrid ~= insertGrid then
 					local quantifiedName = inserterName.."_"..pickupGrid.."_"..insertGrid.."_"..insertType
 					
-					if not data.raw.inserter[quantifiedName] then
-						inserterEntity = util.table.deepcopy(data.raw.inserter[inserterName])
-						inserterEntity.name = quantifiedName
-						inserterEntity.order = "x"	-- ???
-						inserterEntity.pickup_position = pickupValues
-						inserterEntity.insert_position = insertValues
-						data.raw.inserter[quantifiedName] = inserterEntity
-					end
-					
 					if not data.raw.item[quantifiedName] then
 						inserterItem = util.table.deepcopy(data.raw.item[inserterName])
 						inserterItem.name = quantifiedName
-						inserterItem.icon = "__K&L-Inserters__/graphics/icons/"..inserterName..".png"
 						inserterItem.place_result = quantifiedName
 						data.raw.item[quantifiedName] = inserterItem
+					end
+					
+					if not data.raw.inserter[quantifiedName] then
+						inserterEntity = util.table.deepcopy(data.raw.inserter[inserterName])
+						inserterEntity.name = quantifiedName
+						inserterEntity.pickup_position = pickupValues
+						inserterEntity.insert_position = insertValues
+						data.raw.inserter[quantifiedName] = inserterEntity
 					end
 				end
 			end
@@ -466,5 +464,3 @@ end
 for inserterName, inserterPrototypes in next, inserterTables do
 	quantifyInserter(inserterPrototypes, inserterName)
 end
-
---remote.add_interface("candleInserters", {quantifyInserter = quantifyInserter})
