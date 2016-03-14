@@ -431,9 +431,9 @@ local function registerPrototypes(inserterPrototypes, prototypeName)
 	local pickupTable, insertTables, gridTable = pickupTable, insertTables, gridTables[inserterPrototypes.type]
 	local prototypeEntity, prototypeItem, prototypeRecipe = inserterPrototypes.entity, inserterPrototypes.item, inserterPrototypes.recipe
 	
-	data.raw.item[prototypeName] = prototypeItem
-	data.raw.inserter[prototypeName] = prototypeEntity
-	data.raw.recipe[prototypeName] = prototypeRecipe
+	data.raw.item[prototypeName] = util.table.deepcopy(prototypeItem); prototypeItem.flags = { "hidden" }
+	data.raw.inserter[prototypeName] = util.table.deepcopy(prototypeEntity)
+	data.raw.recipe[prototypeName] = util.table.deepcopy(prototypeRecipe)
 	
 	for insertType, insertTable in next, insertTables do
 		for insertGrid, insertValues in next, insertTable do
@@ -441,19 +441,17 @@ local function registerPrototypes(inserterPrototypes, prototypeName)
 				if gridTable[insertGrid] and gridTable[pickupGrid] and pickupGrid ~= insertGrid then
 					local inserterName = prototypeName.."_"..pickupGrid.."_"..insertGrid.."_"..insertType
 					
-					-- if not data.raw.item[inserterName] then
-						-- prototypeItem = util.table.deepcopy(data.raw.item[prototypeName])
-						-- prototypeItem.name = inserterName
-						-- prototypeItem.place_result = inserterName
-						-- data.raw.item[inserterName] = prototypeItem
-					-- end
+					if not data.raw.item[inserterName] then
+						prototypeItem.name = inserterName
+						prototypeItem.place_result = inserterName
+						data.raw.item[inserterName] = util.table.deepcopy(prototypeItem)
+					end
 					
 					if not data.raw.inserter[inserterName] then
-						prototypeEntity = util.table.deepcopy(data.raw.inserter[prototypeName])
 						prototypeEntity.name = inserterName
 						prototypeEntity.pickup_position = pickupValues
 						prototypeEntity.insert_position = insertValues
-						data.raw.inserter[inserterName] = prototypeEntity
+						data.raw.inserter[inserterName] = util.table.deepcopy(prototypeEntity)
 					end
 				end
 			end
