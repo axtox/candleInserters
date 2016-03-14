@@ -431,7 +431,7 @@ local function registerPrototypes(inserterPrototypes, prototypeName)
 	local pickupTable, insertTables, gridTable = pickupTable, insertTables, gridTables[inserterPrototypes.type]
 	local prototypeEntity, prototypeItem, prototypeRecipe = inserterPrototypes.entity, inserterPrototypes.item, inserterPrototypes.recipe
 	
-	data.raw.item[prototypeName] = util.table.deepcopy(prototypeItem); prototypeItem.flags = { "hidden" }
+	data.raw.item[prototypeName] = util.table.deepcopy(prototypeItem); prototypeItem.flags = { "goes-to-quickbar", "hidden" }
 	data.raw.inserter[prototypeName] = util.table.deepcopy(prototypeEntity)
 	data.raw.recipe[prototypeName] = util.table.deepcopy(prototypeRecipe)
 	
