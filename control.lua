@@ -158,6 +158,8 @@ local function onGUIClick(event)
 				lyr.held_stack.set_stack(inserterEntity.held_stack)
 			end
 			
+			lyr.health = inserterEntity.health
+			
 			inserterEntity.destroy()
 			global.candle[playerIndex] = {inserterEntity = false, inserterName = "", inserterProperties = {}}
 			window.destroy()
