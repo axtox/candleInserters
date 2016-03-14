@@ -427,33 +427,33 @@ local inserterTables = {
 	}
 }
 
-local function quantifyInserter(inserterPrototypes, inserterName)
+local function registerPrototypes(inserterPrototypes, prototypeName)
 	local pickupTable, insertTables, gridTable = pickupTable, insertTables, gridTables[inserterPrototypes.type]
-	local inserterEntity, inserterItem, inserterRecipe = inserterPrototypes.entity, inserterPrototypes.item, inserterPrototypes.recipe
+	local prototypeEntity, prototypeItem, prototypeRecipe = inserterPrototypes.entity, inserterPrototypes.item, inserterPrototypes.recipe
 	
-	data.raw.item[inserterName] = inserterItem
-	data.raw.inserter[inserterName] = inserterEntity
-	data.raw.recipe[inserterName] = inserterRecipe
+	data.raw.item[prototypeName] = prototypeItem
+	data.raw.inserter[prototypeName] = prototypeEntity
+	data.raw.recipe[prototypeName] = prototypeRecipe
 	
 	for insertType, insertTable in next, insertTables do
 		for insertGrid, insertValues in next, insertTable do
 			for pickupGrid, pickupValues in next, pickupTable do
 				if gridTable[insertGrid] and gridTable[pickupGrid] and pickupGrid ~= insertGrid then
-					local quantifiedName = inserterName.."_"..pickupGrid.."_"..insertGrid.."_"..insertType
+					local inserterName = prototypeName.."_"..pickupGrid.."_"..insertGrid.."_"..insertType
 					
-					if not data.raw.item[quantifiedName] then
-						inserterItem = util.table.deepcopy(data.raw.item[inserterName])
-						inserterItem.name = quantifiedName
-						inserterItem.place_result = quantifiedName
-						data.raw.item[quantifiedName] = inserterItem
+					if not data.raw.item[inserterName] then
+						prototypeItem = util.table.deepcopy(data.raw.item[prototypeName])
+						prototypeItem.name = inserterName
+						prototypeItem.place_result = inserterName
+						data.raw.item[inserterName] = prototypeItem
 					end
 					
-					if not data.raw.inserter[quantifiedName] then
-						inserterEntity = util.table.deepcopy(data.raw.inserter[inserterName])
-						inserterEntity.name = quantifiedName
-						inserterEntity.pickup_position = pickupValues
-						inserterEntity.insert_position = insertValues
-						data.raw.inserter[quantifiedName] = inserterEntity
+					if not data.raw.inserter[inserterName] then
+						prototypeEntity = util.table.deepcopy(data.raw.inserter[prototypeName])
+						prototypeEntity.name = inserterName
+						prototypeEntity.pickup_position = pickupValues
+						prototypeEntity.insert_position = insertValues
+						data.raw.inserter[inserterName] = prototypeEntity
 					end
 				end
 			end
@@ -461,6 +461,6 @@ local function quantifyInserter(inserterPrototypes, inserterName)
 	end
 end
 
-for inserterName, inserterPrototypes in next, inserterTables do
-	quantifyInserter(inserterPrototypes, inserterName)
+for prototypeName, inserterPrototypes in next, inserterTables do
+	registerPrototypes(inserterPrototypes, prototypeName)
 end
