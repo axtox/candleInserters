@@ -441,20 +441,20 @@ local function registerPrototypes(inserterPrototypes, prototypeName)
 				if gridTable[insertGrid] and gridTable[pickupGrid] and pickupGrid ~= insertGrid then
 					local inserterName = prototypeName.."_"..pickupGrid.."_"..insertGrid.."_"..insertType
 					
-					if not data.raw.item[inserterName] then
-						prototypeItem = util.table.deepcopy(data.raw.item[prototypeName])
-						prototypeItem.name = inserterName
-						prototypeItem.place_result = inserterName
-						data.raw.item[inserterName] = prototypeItem
-					end
-					
-					-- if not data.raw.inserter[inserterName] then
-						-- prototypeEntity = util.table.deepcopy(data.raw.inserter[prototypeName])
-						-- prototypeEntity.name = inserterName
-						-- prototypeEntity.pickup_position = pickupValues
-						-- prototypeEntity.insert_position = insertValues
-						-- data.raw.inserter[inserterName] = prototypeEntity
+					-- if not data.raw.item[inserterName] then
+						-- prototypeItem = util.table.deepcopy(data.raw.item[prototypeName])
+						-- prototypeItem.name = inserterName
+						-- prototypeItem.place_result = inserterName
+						-- data.raw.item[inserterName] = prototypeItem
 					-- end
+					
+					if not data.raw.inserter[inserterName] then
+						prototypeEntity = util.table.deepcopy(data.raw.inserter[prototypeName])
+						prototypeEntity.name = inserterName
+						prototypeEntity.pickup_position = pickupValues
+						prototypeEntity.insert_position = insertValues
+						data.raw.inserter[inserterName] = prototypeEntity
+					end
 				end
 			end
 		end
