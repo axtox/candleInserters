@@ -1,7 +1,5 @@
 require "defines"
 
-local showOnBuilt = true
-
 local next = next
 local inserterTypes = { 
 	["candle-basic-inserter"] = { type = "normal" }, 
@@ -61,17 +59,40 @@ local function onInitialize()
 	if not global.candle then global.candle = {} end
 end
 
-local function onBuiltEntity(event)	
+local ghostProperties = {isReplaced = false, name = "", gridStates = {}}
+
+local function onBuiltEntity(event)
 	local inserterEntity = event.created_entity
 	local inserterName = inserterEntity.name
-
+	
 	--if inserterTypes[event.created_entity.name] then programmingInterface(event, inserterTypes[event.created_entity.name][1]) end
 	if inserterName:sub(1,6) == "candle" then
 		local playerIndex = event.player_index
 		local player = game.get_player(playerIndex)
 		
 		global.candle[playerIndex] = {inserterEntity = inserterEntity, inserterName = inserterName, inserterProperties = {}}
-		programmingInterface(player, inserterTypes[inserterName].type) 
+		
+		if ghostProperties.isReplaced and ghostProperties.name == inserterName then
+			programmingInterface(player, inserterTypes[inserterName].type, ghostProperties.gridStates)
+			ghostProperties.isReplaced = false; ghostProperties.name = ""; ghostProperties.gridStates = {}
+		else
+			programmingInterface(player, inserterTypes[inserterName].type) 
+		end
+	end
+end
+
+local function onPutItem(event)	-- this can be extended for fast replace. replacing a candle smart inserter with candle fast inserter, while keeping the grid for example.
+	local player = game.get_player(event.player_index)
+	local positionX, positionY = event.position.x, event.position.y
+	local area = {{positionX-0.5, positionY-0.5}, {positionX+0.5, positionY+0.5}}
+	local ghostEntities = player.surface.find_entities_filtered({area = area, type = "entity-ghost"})
+	
+	if ghostEntities and next(ghostEntities) and ghostEntities[1].ghost_name:sub(1,6) == "candle" and ghostEntities[1].ghost_name:find("_") then 
+		local ghostName, ghostProperties = ghostEntities[1].ghost_name, ghostProperties
+		
+		for state in ghostName:gmatch("_(%w+)") do ghostProperties.gridStates[#ghostProperties.gridStates+1] = state end
+		ghostProperties.name = ghostName:sub(1, ghostName:find("_")-1)
+		ghostProperties.isReplaced = true
 	end
 end
 
@@ -171,6 +192,7 @@ local function onGUIClick(event)
 end
 
 script.on_init(onInitialize)
-if showOnBuilt then script.on_event(defines.events.on_built_entity, onBuiltEntity) end
+script.on_event(defines.events.on_built_entity, onBuiltEntity)
+script.on_event(defines.events.on_put_item, onPutItem)
 script.on_event(defines.events.on_player_rotated_entity, onRotatedEntity)
 script.on_event(defines.events.on_gui_click, onGUIClick)
