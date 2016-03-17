@@ -73,9 +73,9 @@ local function programmingInterface()
 	end
 end
 
-local function getProperties(player, inserterEntity, isGhost)
+local function getProperties(player, inserterEntity, itemName, isGhost)
 	local inserterName, inserterDirection = isGhost and inserterEntity.ghost_name or inserterEntity.name, inserterEntity.direction
-	local inserterGrid, inserterProperties = {}, {}
+	local inserterGrid, inserterProperties, inserterType, itemType = {}, {}, inserterTypes[inserterName], inserterTypes[itemName]
 	
 	candleEntityTable = {inserterEntity = false, inserterName = "", inserterProperties = {}, inserterType = "", inserterGrid = {}, player = false}
 	
@@ -83,16 +83,15 @@ local function getProperties(player, inserterEntity, isGhost)
 		if inserterName:find("_") then
 			for state in inserterName:gmatch("_(%w+)") do if #inserterGrid < 2 then inserterGrid[#inserterGrid+1] = rotationTable[inserterDirection][tonumber(state)] else inserterGrid[#inserterGrid+1] = state end end
 			inserterName = inserterName:sub(1, inserterName:find("_")-1)
+			inserterType = inserterTypes[inserterName]
 		end
 	else
-		local inserterType = inserterTypes[inserterName]
-		
 		inserterGrid = {vanillaTable[inserterType][inserterDirection][1], vanillaTable[inserterType][inserterDirection][2], "far"}
 	end
 	
 	if inserterName:find("smart") or inserterName:find("advanced") then
 		local inserterFilters, inserterConditions = {}, { circuit = inserterEntity.get_circuit_condition(defines.circuitconditionindex.inserter_circuit).condition, logistics = inserterEntity.get_circuit_condition(defines.circuitconditionindex.inserter_logistic).condition }
-	
+		
 		for filterSlot = 1, 5 do 
 			local filterItemName = inserterEntity.get_filter(filterSlot) 
 			
@@ -101,6 +100,8 @@ local function getProperties(player, inserterEntity, isGhost)
 		
 		inserterProperties.isSmart = {inserterFilters = inserterFilters, inserterConditions = inserterConditions}
 	end
+	
+	if itemName and inserterGrid and next(inserterGrid) and not (gridTables[itemType][inserterGrid[1]] or gridTables[itemType][inserterGrid[2]]) then inserterGrid = {} end
 	
 	if not isGhost and inserterEntity.held_stack.valid_for_read then
 		inserterProperties.hasSomething = true
@@ -152,13 +153,13 @@ end
 
 local onPutItemFilter = {candle = true, inserter = true}
 local function onPutItem(event) if not onPutItemFilter[game.get_player(event.player_index).cursor_stack.name:sub(1,6)] then return end	
-	local positionX, positionY, area = event.position.x, event.position.y; area = {{positionX-0.5, positionY-0.5}, {positionX+0.5, positionY+0.5}}
+	local positionX, positionY, area = event.position.x, event.position.y; area = {{positionX-0.40, positionY-0.40}, {positionX+0.40, positionY+0.40}}
 	local player, inserterEntity, entitySearch, isGhost = game.get_player(event.player_index)
 	entitySearch = player.surface.find_entities_filtered({area = area, type = "inserter"}); if entitySearch and next(entitySearch) then inserterEntity = entitySearch[1]; else
 	entitySearch = player.surface.find_entities_filtered({area = area, type = "entity-ghost"}); for _, entity in next, entitySearch do if entity.ghost_type == "inserter" then inserterEntity = entity; isGhost = true end end end
-	if not inserterEntity then return end
+	if not inserterEntity then return end; local itemName = player.cursor_stack.name
 	
-	getProperties(player, inserterEntity, isGhost)
+	getProperties(player, inserterEntity, itemName, isGhost)
 end
 
 local onRotatedEntityFilter = {candle = true}
