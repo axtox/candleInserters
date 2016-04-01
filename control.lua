@@ -1,7 +1,8 @@
 require "defines"
 
 local next = next
-local candleEntityTable = {inserterEntity = false, inserterName = "", inserterProperties = {}, inserterType = "", inserterGrid = {}, player = false}
+local nilCandleTable = {inserterEntity = false, inserterName = "", inserterProperties = {}, inserterType = "", inserterGrid = {}, player = false}
+local candleTable = nilCandleTable
 local inserterTypes = { 
 	["candle-basic-inserter"] = "normal",
 	["basic-inserter"] = "normal",
@@ -51,7 +52,7 @@ local function createInserterGrid(parent, gridTableName, inserterType)
 end
 
 local function programmingInterface()
-	local player, inserterType, inserterGrid = candleEntityTable.player, candleEntityTable.inserterType, candleEntityTable.inserterGrid
+	local player, inserterType, inserterGrid = candleTable.player, candleTable.inserterType, candleTable.inserterGrid
 	if player.gui.center.mainFrame then player.gui.center.mainFrame.destroy() end
 	
 	local mainFrame = player.gui.center.add({ type = "frame", name = "mainFrame", direction = "vertical" })
@@ -77,7 +78,7 @@ local function getProperties(player, inserterEntity, itemName, isGhost)
 	local inserterName, inserterDirection = isGhost and inserterEntity.ghost_name or inserterEntity.name, inserterEntity.direction
 	local inserterGrid, inserterProperties, inserterType, itemType = {}, {}, inserterTypes[inserterName], inserterTypes[itemName]
 	
-	candleEntityTable = {inserterEntity = false, inserterName = "", inserterProperties = {}, inserterType = "", inserterGrid = {}, player = false}
+	candleTable = nilCandleTable
 	
 	if inserterName:sub(1,6) == "candle" then
 		if inserterName:find("_") then
@@ -87,7 +88,7 @@ local function getProperties(player, inserterEntity, itemName, isGhost)
 		end
 	else
 		inserterGrid = {vanillaTable[inserterType][inserterDirection][1], vanillaTable[inserterType][inserterDirection][2], "far"}
-	end
+	end; if itemName and inserterGrid and next(inserterGrid) and not (gridTables[itemType][inserterGrid[1]] or gridTables[itemType][inserterGrid[2]]) then inserterGrid = {} end
 	
 	if inserterName:find("smart") or inserterName:find("advanced") then
 		local inserterFilters, inserterConditions = {}, { circuit = inserterEntity.get_circuit_condition(defines.circuitconditionindex.inserter_circuit).condition, logistics = inserterEntity.get_circuit_condition(defines.circuitconditionindex.inserter_logistic).condition }
@@ -101,28 +102,26 @@ local function getProperties(player, inserterEntity, itemName, isGhost)
 		inserterProperties.isSmart = {inserterFilters = inserterFilters, inserterConditions = inserterConditions}
 	end
 	
-	if itemName and inserterGrid and next(inserterGrid) and not (gridTables[itemType][inserterGrid[1]] or gridTables[itemType][inserterGrid[2]]) then inserterGrid = {} end
-	
 	if not isGhost and inserterEntity.held_stack.valid_for_read then
 		inserterProperties.hasSomething = true
 	end
 	
-	candleEntityTable = {inserterEntity = inserterEntity, inserterName = inserterName, inserterProperties = inserterProperties, inserterType = inserterTypes[inserterName], inserterGrid = inserterGrid, player = player}
+	candleTable = {inserterEntity = inserterEntity, inserterName = inserterName, inserterProperties = inserterProperties, inserterType = inserterTypes[inserterName], inserterGrid = inserterGrid, player = player}
 end
 
 local function createInserter()
-	local inserterTable = candleEntityTable
-	local inserterEntity, inserterName, inserterProperties, inserterGrid = inserterTable.inserterEntity, inserterTable.inserterName, inserterTable.inserterProperties, inserterTable.inserterGrid
-		if not inserterEntity.valid then candleEntityTable = {inserterEntity = false, inserterName = "", inserterProperties = {}, inserterType = "", inserterGrid = {}, player = false}; return end
+	local inserterTable = candleTable
+	local player, inserterEntity, inserterName, inserterProperties, inserterGrid = inserterTable.player, inserterTable.inserterEntity, inserterTable.inserterName, inserterTable.inserterProperties, inserterTable.inserterGrid
+		if not inserterEntity.valid then candleTable = nilCandleTable; return end
 	local pickupGrid, insertGrid, insertType = inserterGrid[1], inserterGrid[2], inserterGrid[3]
-	local newInserter = false
+	local newInserter, newInserterName, newInserterPosition = false, inserterName.."_"..pickupGrid.."_"..insertGrid.."_"..insertType, inserterEntity.position
 	
 	if inserterProperties.isSmart then
 		local inserterFilters, inserterConditions = inserterProperties.isSmart.inserterFilters, inserterProperties.isSmart.inserterConditions
 		
-		newInserter = inserterEntity.surface.create_entity{ name = inserterName.."_"..pickupGrid.."_"..insertGrid.."_"..insertType, position = inserterEntity.position, force = inserterEntity.force, filters = inserterFilters, conditions = inserterConditions }
+		newInserter = player.surface.create_entity{ name = newInserterName, position = newInserterPosition, force = player.force, filters = inserterFilters, conditions = inserterConditions }
 	else
-		newInserter = inserterEntity.surface.create_entity{ name = inserterName.."_"..pickupGrid.."_"..insertGrid.."_"..insertType, position = inserterEntity.position, force = inserterEntity.force }
+		newInserter = player.surface.create_entity{ name = newInserterName, position = newInserterPosition, force = player.force }
 	end
 	
 	if inserterProperties.hasSomething then 
@@ -132,40 +131,46 @@ local function createInserter()
 	newInserter.health = inserterEntity.health
 	
 	inserterEntity.destroy()
-	candleEntityTable = {inserterEntity = false, inserterName = "", inserterProperties = {}, inserterType = "", inserterGrid = {}, player = false}
+	candleTable = nilCandleTable
 end
 
 --[[ EVENT HANDLERS ]]--
 local onBuiltEntityFilter = {candle = true}
-local function onBuiltEntity(event) if not onBuiltEntityFilter[event.created_entity.name:sub(1,6)] then return end
+local function onBuiltEntity(event)
 	local inserterEntity = event.created_entity
 	local inserterName = inserterEntity.name
+		if not onBuiltEntityFilter[inserterName:sub(1,6)] then return end
 	local player = game.get_player(event.player_index)
 	
 	inserterEntity.direction = 0
-	candleEntityTable = {inserterEntity = inserterEntity, inserterName = inserterName, inserterProperties = candleEntityTable.inserterProperties, inserterType = inserterTypes[inserterName], inserterGrid = candleEntityTable.inserterGrid, player = player}
+	candleTable = {inserterEntity = inserterEntity, inserterName = inserterName, inserterProperties = candleTable.inserterProperties, inserterType = inserterTypes[inserterName], inserterGrid = candleTable.inserterGrid, player = player}
 	
-	if candleEntityTable.inserterGrid and next(candleEntityTable.inserterGrid) then
+	if candleTable.inserterGrid and next(candleTable.inserterGrid) then
 		createInserter()
 	else
 		programmingInterface() 
 	end
 end
 
-local onPutItemFilter = {candle = true, inserter = true}
-local function onPutItem(event) if not onPutItemFilter[game.get_player(event.player_index).cursor_stack.name:sub(1,6)] then return end	
-	local positionX, positionY, area = event.position.x, event.position.y; area = {{positionX-0.40, positionY-0.40}, {positionX+0.40, positionY+0.40}}
-	local player, inserterEntity, entitySearch, isGhost = game.get_player(event.player_index)
-	entitySearch = player.surface.find_entities_filtered({area = area, type = "inserter"}); if entitySearch and next(entitySearch) then inserterEntity = entitySearch[1]; else
-	entitySearch = player.surface.find_entities_filtered({area = area, type = "entity-ghost"}); for _, entity in next, entitySearch do if entity.ghost_type == "inserter" then inserterEntity = entity; isGhost = true end end end
-	if not inserterEntity then return end; local itemName = player.cursor_stack.name
+local onPutItemFilter = {candle = true}
+local function onPutItem(event) 
+	local player = game.get_player(event.player_index);
+	local item = player.cursor_stack
+		if not item.valid_for_read or not onPutItemFilter[item.name:sub(1,6)] then return end 
+	local positionX, positionY, area = event.position.x, event.position.y; area = {{positionX-0.35, positionY-0.35}, {positionX+0.35, positionY+0.35}}
+	local itemName, inserterEntity, entitySearch, isGhost = item.name
+	if not inserterEntity then entitySearch = player.surface.find_entities_filtered({area = area, type = "entity-ghost"}); if entitySearch then for _, entity in next, entitySearch do if entity.ghost_type == "inserter" then inserterEntity = entity; isGhost = true end end end end
+	if not inserterEntity then entitySearch = player.surface.find_entities_filtered({area = area, type = "inserter"}); if entitySearch then for _, entity in next, entitySearch do inserterEntity = entity end end end
+	if not inserterEntity then return end;
 	
 	getProperties(player, inserterEntity, itemName, isGhost)
 end
 
 local onRotatedEntityFilter = {candle = true}
-local function onRotatedEntity(event) if not onRotatedEntityFilter[event.entity.name:sub(1,6)] then return end
-	local player, inserterEntity = game.get_player(event.player_index), event.entity
+local function onRotatedEntity(event) 
+	local inserterEntity = event.entity
+		if not onRotatedEntityFilter[inserterEntity.name:sub(1,6)] then return end
+	local player = game.get_player(event.player_index)
 	
 	inserterEntity.direction = 0
 	getProperties(player, inserterEntity)
@@ -173,11 +178,13 @@ local function onRotatedEntity(event) if not onRotatedEntityFilter[event.entity.
 end
 
 local onGUIClickFilter = {inserterGrid = true, candleAccept = true, candleCancel = true}
-local function onGUIClick(event) if not onGUIClickFilter[event.element.name:sub(1, 12)] then return end
+local function onGUIClick(event)
 	local element = event.element
+	local elementName = element.name
+		if not onGUIClickFilter[elementName:sub(1, 12)] then return end
 	local parent = element.parent
+	local parentName = parent.name
 	local window = parent.parent
-	local elementName, parentName = element.name, parent.name
 	
 	if elementName:sub(1, 12) == "inserterGrid" then
 		local active = tonumber(elementName:sub(14))
@@ -202,12 +209,12 @@ local function onGUIClick(event) if not onGUIClickFilter[event.element.name:sub(
 		end; insertType = parent.candleNear.state and "near" or "far"
 		
 		if pickupGrid ~= nil and insertGrid ~= nil and pickupGrid ~= insertGrid then
-			candleEntityTable.inserterGrid = {pickupGrid, insertGrid, insertType}
+			candleTable.inserterGrid = {pickupGrid, insertGrid, insertType}
 			createInserter()
 			window.destroy()
 		end
 	elseif elementName == "candleCancel" then
-		candleEntityTable = {inserterEntity = false, inserterName = "", inserterProperties = {}, inserterType = "", inserterGrid = {}, player = false}
+		candleTable = nilCandleTable
 		window.destroy()
 	end
 end
