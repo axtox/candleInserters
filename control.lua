@@ -113,6 +113,7 @@ end
 local function createInserter()
 	local inserterTable = candleEntityTable
 	local inserterEntity, inserterName, inserterProperties, inserterGrid = inserterTable.inserterEntity, inserterTable.inserterName, inserterTable.inserterProperties, inserterTable.inserterGrid
+		if not inserterEntity.valid then return end
 	local pickupGrid, insertGrid, insertType = inserterGrid[1], inserterGrid[2], inserterGrid[3]
 	local newInserter = false
 	
