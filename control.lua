@@ -88,7 +88,7 @@ local function getProperties(player, inserterEntity, itemName, isGhost)
 		end
 	else
 		inserterGrid = {vanillaTable[inserterType][inserterDirection][1], vanillaTable[inserterType][inserterDirection][2], "far"}
-	end; if itemName and inserterGrid and next(inserterGrid) and not (gridTables[itemType][inserterGrid[1]] or gridTables[itemType][inserterGrid[2]]) then inserterGrid = {} end
+	end; if itemName and inserterGrid and next(inserterGrid) and not (gridTables[itemType][inserterGrid[1]] and gridTables[itemType][inserterGrid[2]]) then inserterGrid = {} end
 	
 	if inserterName:find("smart") or inserterName:find("advanced") then
 		local inserterFilters, inserterConditions = {}, { circuit = inserterEntity.get_circuit_condition(defines.circuitconditionindex.inserter_circuit).condition, logistics = inserterEntity.get_circuit_condition(defines.circuitconditionindex.inserter_logistic).condition }
