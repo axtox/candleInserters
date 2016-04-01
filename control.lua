@@ -161,7 +161,7 @@ local function onPutItem(event)
 	local itemName, inserterEntity, entitySearch, isGhost = item.name
 	if not inserterEntity then entitySearch = player.surface.find_entities_filtered({area = area, type = "entity-ghost"}); if entitySearch then for _, entity in next, entitySearch do if entity.ghost_type == "inserter" then inserterEntity = entity; isGhost = true end end end end
 	if not inserterEntity then entitySearch = player.surface.find_entities_filtered({area = area, type = "inserter"}); if entitySearch then for _, entity in next, entitySearch do inserterEntity = entity end end end
-	if not inserterEntity then return end;
+	if not inserterEntity then candleTable = nilCandleTable; return end;
 	
 	getProperties(player, inserterEntity, itemName, isGhost)
 end
