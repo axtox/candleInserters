@@ -390,8 +390,8 @@ local inserterTables = {
 			energy_per_movement = 9000, 
 			energy_per_rotation = 9000, 
 			energy_source = { type = "electric", usage_priority = "secondary-input", drain = "0.4kW" }, 
-			extension_speed = 0.07, 
-			rotation_speed = 0.04, 
+			extension_speed = 0.0875, --0.07 
+			rotation_speed = 0.05, --0.04 
 			fast_replaceable_group = "long-handed-inserter", 
 			hand_base_picture = { filename = "__K&L-Inserters__/graphics/entity/advanced-inserter/advanced-inserter-hand-base.png", priority = "extra-high", width = 8, height = 34 }, 
 			hand_closed_picture = { filename = "__K&L-Inserters__/graphics/entity/advanced-inserter/advanced-inserter-hand-closed.png", priority = "extra-high", width = 18, height = 41 }, 
