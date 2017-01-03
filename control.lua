@@ -1,15 +1,13 @@
-require "defines"
-
 local next = next
 local nilCandleTable = {inserterEntity = false, inserterName = "", inserterProperties = {}, inserterType = "", inserterGrid = {}, player = false}
 local candleTable = {}
 local inserterTypes = { 
 	["candle-basic-inserter"] = "normal",
-	["basic-inserter"] = "normal",
+	["inserter"] = "normal",
 	["candle-fast-inserter"] = "normal",
 	["fast-inserter"] = "normal",
 	["candle-smart-inserter"] = "normal",
-	["smart-inserter"] = "normal",
+	["filter-inserter"] = "normal",
 	["candle-basic-long-inserter"] = "long",
 	["long-handed-inserter"] = "long",
 	["candle-fast-long-inserter"] = "long",
@@ -142,7 +140,7 @@ local function onBuiltEntity(event)
 	local inserterName = inserterEntity.name
 		if not onBuiltEntityFilter[inserterName:sub(1,6)] then return end
 	local playerIndex = event.player_index
-	local player = game.get_player(playerIndex)
+	local player = game.players[playerIndex]
 	
 	inserterEntity.direction = 0
 	candleTable[playerIndex] = {inserterEntity = inserterEntity, inserterName = inserterName, inserterProperties = candleTable[playerIndex].inserterProperties, inserterType = inserterTypes[inserterName], inserterGrid = candleTable[playerIndex].inserterGrid, player = player}
@@ -157,7 +155,7 @@ end
 local onPutItemFilter = {candle = true}
 local function onPutItem(event) 
 	local playerIndex = event.player_index
-	local player = game.get_player(playerIndex)
+	local player = game.players[playerIndex]
 	local item = player.cursor_stack
 		if not item.valid_for_read or not onPutItemFilter[item.name:sub(1,6)] then return end 
 	local positionX, positionY, area = event.position.x, event.position.y; area = {{positionX-0.35, positionY-0.35}, {positionX+0.35, positionY+0.35}}
@@ -174,7 +172,7 @@ local function onRotatedEntity(event)
 	local inserterEntity = event.entity
 		if not onRotatedEntityFilter[inserterEntity.name:sub(1,6)] then return end
 	local playerIndex = event.player_index
-	local player = game.get_player(playerIndex)
+	local player = game.players[playerIndex]
 	
 	inserterEntity.direction = 0
 	getProperties(player, playerIndex, inserterEntity)
@@ -190,7 +188,7 @@ local function onGUIClick(event)
 	local parentName = parent.name
 	local window = parent.parent
 	local playerIndex = event.player_index
-	local player = game.get_player(playerIndex)
+	local player = game.players[playerIndex]
 	
 	if elementName:sub(1, 12) == "inserterGrid" then
 		local active = tonumber(elementName:sub(14))
@@ -227,7 +225,7 @@ end
 
 local function onPlayerCreated(event)
 	local playerIndex = event.player_index
-	local player = game.get_player(playerIndex)
+	local player = game.players[playerIndex]
 	
 	if player.connected then candleTable[playerIndex] = nilCandleTable end
 end
@@ -236,7 +234,7 @@ local function onInitialize()
 	local players = game.players
 		if not players then return end
 	
-	for _, player in next, players do
+	for _, player in pairs(game.players) do
 		if player.connected then candleTable[player.index] = nilCandleTable end
 	end
 end

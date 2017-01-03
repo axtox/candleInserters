@@ -5,5 +5,6 @@
 	"author": "lyravega",
 	"contact": "http://steamcommunity.com/id/lyravega",
 	"dependencies": ["base"],
-	"description": "Inserter Freedom"
+	"description": "Inserter Freedom", 
+	"factorio_version":"0.14"
 }
