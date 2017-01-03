@@ -40,13 +40,13 @@ local inserterTables = {
 			extension_speed = 0.03, 
 			rotation_speed = 0.014, 
 			fast_replaceable_group = "inserter", 
-			hand_base_picture = { filename = "__base__/graphics/entity/basic-inserter/basic-inserter-hand-base.png", priority = "extra-high", width = 8, height = 33 }, 
-			hand_closed_picture = { filename = "__base__/graphics/entity/basic-inserter/basic-inserter-hand-closed.png", priority = "extra-high", width = 18, height = 41 }, 
-			hand_open_picture = { filename = "__base__/graphics/entity/basic-inserter/basic-inserter-hand-open.png", priority = "extra-high", width = 18, height = 41 }, 
+			hand_base_picture = { filename = "__base__/graphics/entity/inserter/inserter-hand-base.png", priority = "extra-high", width = 8, height = 33 }, 
+			hand_closed_picture = { filename = "__base__/graphics/entity/inserter/inserter-hand-closed.png", priority = "extra-high", width = 18, height = 41 }, 
+			hand_open_picture = { filename = "__base__/graphics/entity/inserter/inserter-hand-open.png", priority = "extra-high", width = 18, height = 41 }, 
 			hand_base_shadow = { filename = "__base__/graphics/entity/burner-inserter/burner-inserter-hand-base-shadow.png", priority = "extra-high", width = 8, height = 34 }, 
 			hand_closed_shadow = { filename = "__base__/graphics/entity/burner-inserter/burner-inserter-hand-closed-shadow.png", priority = "extra-high", width = 18, height = 41 }, 
 			hand_open_shadow = { filename = "__base__/graphics/entity/burner-inserter/burner-inserter-hand-open-shadow.png", priority = "extra-high", width = 18, height = 41 }, 
-			platform_picture = { sheet = { filename = "__base__/graphics/entity/basic-inserter/basic-inserter-platform.png", priority = "extra-high", width = 46, height = 46 } }
+			platform_picture = { sheet = { filename = "__base__/graphics/entity/inserter/inserter-platform.png", priority = "extra-high", width = 46, height = 46 } }
 		},
 		item = { 
 			type = "item", 
@@ -62,7 +62,7 @@ local inserterTables = {
 			type = "recipe", 
 			name = "candle-basic-inserter", 
 			enabled = true, 
-			ingredients = { { "basic-inserter", 1 } }, 
+			ingredients = { { "inserter", 1 } }, 
 			result = "candle-basic-inserter"
 		},
 		type = "normal"
@@ -154,13 +154,13 @@ local inserterTables = {
 			extension_speed = 0.07, 
 			rotation_speed = 0.04, 
 			fast_replaceable_group = "inserter", 
-			hand_base_picture = { filename = "__base__/graphics/entity/smart-inserter/smart-inserter-hand-base.png", priority = "extra-high", width = 8, height = 34 }, 
-			hand_closed_picture = { filename = "__base__/graphics/entity/smart-inserter/smart-inserter-hand-closed.png", priority = "extra-high", width = 18, height = 41 }, 
-			hand_open_picture = { filename = "__base__/graphics/entity/smart-inserter/smart-inserter-hand-open.png", priority = "extra-high", width = 18, height = 41 }, 
+			hand_base_picture = { filename = "__base__/graphics/entity/filter-inserter/filter-inserter-hand-base.png", priority = "extra-high", width = 8, height = 34 }, 
+			hand_closed_picture = { filename = "__base__/graphics/entity/filter-inserter/filter-inserter-hand-closed.png", priority = "extra-high", width = 18, height = 41 }, 
+			hand_open_picture = { filename = "__base__/graphics/entity/filter-inserter/filter-inserter-hand-open.png", priority = "extra-high", width = 18, height = 41 }, 
 			hand_base_shadow = { filename = "__base__/graphics/entity/burner-inserter/burner-inserter-hand-base-shadow.png", priority = "extra-high", width = 8, height = 34 }, 
 			hand_closed_shadow = { filename = "__base__/graphics/entity/burner-inserter/burner-inserter-hand-closed-shadow.png", priority = "extra-high", width = 18, height = 41 }, 
 			hand_open_shadow = { filename = "__base__/graphics/entity/burner-inserter/burner-inserter-hand-open-shadow.png", priority = "extra-high", width = 18, height = 41 }, 
-			platform_picture = { sheet = { filename = "__base__/graphics/entity/smart-inserter/smart-inserter-platform.png", priority = "extra-high", width = 46, height = 46 } }, 
+			platform_picture = { sheet = { filename = "__base__/graphics/entity/filter-inserter/filter-inserter-platform.png", priority = "extra-high", width = 46, height = 46 } }, 
 			filter_count = 5, 
 			programmable = true, 
 			circuit_wire_connection_point = {shadow = {red = {0, 0}, green = {0, 0}}, wire = {red = {0, 0}, green = {0, 0}}}, 
@@ -180,7 +180,7 @@ local inserterTables = {
 			type = "recipe", 
 			name = "candle-smart-inserter", 
 			enabled = false, 
-			ingredients = { { "smart-inserter", 1 } }, 
+			ingredients = { { "filter-inserter", 1 } }, 
 			result = "candle-smart-inserter"
 		},
 		type = "normal"
@@ -358,7 +358,7 @@ local inserterTables = {
 			type = "recipe", 
 			name = "candle-smart-long-inserter", 
 			enabled = false, 
-			ingredients = { { "smart-inserter", 1 }, { "long-handed-inserter", 1 } }, 
+			ingredients = { { "filter-inserter", 1 }, { "long-handed-inserter", 1 } }, 
 			result = "candle-smart-long-inserter"
 		},
 		type = "long"
