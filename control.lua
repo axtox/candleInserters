@@ -2,6 +2,7 @@ local next = next
 local nilCandleTable = {inserterEntity = false, inserterName = "", inserterProperties = {}, inserterType = "", inserterGrid = {}, player = false}
 local candleTable = {}
 local inserterTypes = { 
+	["burner-inserter"] = "normal",
 	["candle-basic-inserter"] = "normal",
 	["inserter"] = "normal",
 	["candle-fast-inserter"] = "normal",
@@ -10,6 +11,8 @@ local inserterTypes = {
 	["filter-inserter"] = "normal",
 	["candle-basic-long-inserter"] = "long",
 	["long-handed-inserter"] = "long",
+	["stack-inserter"] = "normal",
+	["stack-filter-inserter"] = "normal",
 	["candle-fast-long-inserter"] = "long",
 	["candle-smart-long-inserter"] = "long",
 	["candle-advanced-inserter"] = "advanced"
@@ -73,6 +76,39 @@ local function programmingInterface(playerIndex)
 	end
 end
 
+--gets logistic condition object. Returns nil if no condition in control or wrong arguments passed
+local function get_logistic_condition(control)
+	--this will reduce nesting
+	if control == nil or not control.valid  then
+		return nil
+	end
+	
+	if control.connect_to_logistic_network then
+		 --has logistic condition
+		if control.logistic_condition then
+			return control.logistic_condition.condition
+		end         
+	end
+	return nil
+end
+
+--gets circuit condition object. Returns nil if no condition in control or wrong arguments passed
+local function get_circuit_condition(control)
+	--this will reduce nesting
+	if control == nil or not control.valid  then
+		return nil
+	end
+	
+	--is connected by wire
+	if control.get_circuit_network(defines.wire_type.red, defines.circuit_connector_id.inserter) or control.get_circuit_network(defines.wire_type.green, defines.circuit_connector_id.inserter) then
+		--has the circuit condition set?
+		if control.circuit_condition then
+			return control.circuit_condition.condition
+		end
+	end
+	return nil
+end
+
 local function getProperties(player, playerIndex, inserterEntity, itemName, isGhost)
 	local inserterName, inserterDirection = isGhost and inserterEntity.ghost_name or inserterEntity.name, inserterEntity.direction
 	local inserterGrid, inserterProperties, inserterType, itemType = {}, {}, inserterTypes[inserterName], inserterTypes[itemName]
@@ -90,7 +126,7 @@ local function getProperties(player, playerIndex, inserterEntity, itemName, isGh
 	end; if itemName and inserterGrid and next(inserterGrid) and not (gridTables[itemType][inserterGrid[1]] and gridTables[itemType][inserterGrid[2]]) then inserterGrid = {} end
 	
 	if inserterName:find("smart") or inserterName:find("advanced") then
-		local inserterFilters, inserterConditions = {}, { circuit = inserterEntity.get_circuit_condition(defines.circuitconditionindex.inserter_circuit).condition, logistics = inserterEntity.get_circuit_condition(defines.circuitconditionindex.inserter_logistic).condition }
+		local inserterFilters = {}
 		
 		for filterSlot = 1, 5 do 
 			local filterItemName = inserterEntity.get_filter(filterSlot) 
@@ -98,9 +134,17 @@ local function getProperties(player, playerIndex, inserterEntity, itemName, isGh
 			if filterItemName then inserterFilters[#inserterFilters+1] = { index = filterSlot, name = filterItemName } end 
 		end
 		
-		inserterProperties.isSmart = {inserterFilters = inserterFilters, inserterConditions = inserterConditions}
+		inserterProperties.isFilter = { inserterFilters = inserterFilters }
 	end
 	
+	--try to get logistic and circuit conditions
+	local control = inserterEntity.get_or_create_control_behavior()
+	if control ~= nil and control.valid then
+		local inserterConditions = { circuit = get_circuit_condition(control), logistics = get_logistic_condition(control) }
+		
+		inserterProperties.inserterConditions = inserterConditions
+	end
+		
 	if not isGhost and inserterEntity.held_stack.valid_for_read then
 		inserterProperties.hasSomething = true
 	end
@@ -114,13 +158,14 @@ local function createInserter(playerIndex)
 		if not inserterEntity.valid then candleTable[playerIndex] = nilCandleTable; return end
 	local pickupGrid, insertGrid, insertType = inserterGrid[1], inserterGrid[2], inserterGrid[3]
 	local newInserter, newInserterName, newInserterPosition = false, inserterName.."_"..pickupGrid.."_"..insertGrid.."_"..insertType, inserterEntity.position
+	local inserterConditions = inserterProperties.inserterConditions
 	
-	if inserterProperties.isSmart then
-		local inserterFilters, inserterConditions = inserterProperties.isSmart.inserterFilters, inserterProperties.isSmart.inserterConditions
+	if inserterProperties.isFilter then
+		local inserterFilters = inserterProperties.isFilter.inserterFilters
 		
 		newInserter = player.surface.create_entity{ name = newInserterName, position = newInserterPosition, force = player.force, filters = inserterFilters, conditions = inserterConditions }
 	else
-		newInserter = player.surface.create_entity{ name = newInserterName, position = newInserterPosition, force = player.force }
+		newInserter = player.surface.create_entity{ name = newInserterName, position = newInserterPosition, force = player.force, conditions = inserterConditions }
 	end
 	
 	if inserterProperties.hasSomething then 
@@ -128,6 +173,13 @@ local function createInserter(playerIndex)
 	end
 	
 	newInserter.health = inserterEntity.health
+	newInserter.copy_settings(inserterEntity) --will copy logistic and circuit conditions if inserterConditions won't and other options
+	newInserter.last_user = game.players[playerIndex]
+	for key,value in ipairs(inserterEntity.circuit_connection_definitions) do --will re-connect wires 
+		local circuitConnectionDefinition = value
+		inserterEntity.disconnect_neighbour(circuitConnectionDefinition)
+		newInserter.connect_neighbour(circuitConnectionDefinition)
+	end
 	
 	inserterEntity.destroy()
 	candleTable[playerIndex] = nilCandleTable

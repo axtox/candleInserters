@@ -46,7 +46,9 @@ local inserterTables = {
 			hand_base_shadow = { filename = "__base__/graphics/entity/burner-inserter/burner-inserter-hand-base-shadow.png", priority = "extra-high", width = 8, height = 34 }, 
 			hand_closed_shadow = { filename = "__base__/graphics/entity/burner-inserter/burner-inserter-hand-closed-shadow.png", priority = "extra-high", width = 18, height = 41 }, 
 			hand_open_shadow = { filename = "__base__/graphics/entity/burner-inserter/burner-inserter-hand-open-shadow.png", priority = "extra-high", width = 18, height = 41 }, 
-			platform_picture = { sheet = { filename = "__base__/graphics/entity/inserter/inserter-platform.png", priority = "extra-high", width = 46, height = 46 } }
+			platform_picture = { sheet = { filename = "__base__/graphics/entity/inserter/inserter-platform.png", priority = "extra-high", width = 46, height = 46 } },
+			circuit_wire_connection_point = {shadow = {red = {0, 0}, green = {0, 0}}, wire = {red = {0, 0}, green = {0, 0}}}, 
+			circuit_wire_max_distance = 7.5
 		},
 		item = { 
 			type = "item", 
@@ -104,6 +106,8 @@ local inserterTables = {
 			hand_closed_shadow = { filename = "__base__/graphics/entity/burner-inserter/burner-inserter-hand-closed-shadow.png", priority = "extra-high", width = 18, height = 41 }, 
 			hand_open_shadow = { filename = "__base__/graphics/entity/burner-inserter/burner-inserter-hand-open-shadow.png", priority = "extra-high", width = 18, height = 41 }, 
 			platform_picture = { sheet = { filename = "__base__/graphics/entity/fast-inserter/fast-inserter-platform.png", priority = "extra-high", width = 46, height = 46 } }, 
+			circuit_wire_connection_point = {shadow = {red = {0, 0}, green = {0, 0}}, wire = {red = {0, 0}, green = {0, 0}}}, 
+			circuit_wire_max_distance = 7.5
 		},
 		item = { 
 			type = "item", 
@@ -222,7 +226,9 @@ local inserterTables = {
 			hand_closed_shadow = { filename = "__base__/graphics/entity/burner-inserter/burner-inserter-hand-closed-shadow.png", priority = "extra-high", width = 18, height = 41 }, 
 			hand_open_shadow = { filename = "__base__/graphics/entity/burner-inserter/burner-inserter-hand-open-shadow.png", priority = "extra-high", width = 18, height = 41 }, 
 			platform_picture = { sheet = { filename = "__base__/graphics/entity/long-handed-inserter/long-handed-inserter-platform.png", priority = "extra-high", width = 46, height = 46 } }, 
-			hand_size = 1.5
+			hand_size = 1.5,
+			circuit_wire_connection_point = {shadow = {red = {0, 0}, green = {0, 0}}, wire = {red = {0, 0}, green = {0, 0}}}, 
+			circuit_wire_max_distance = 7.5
 		},
 		item = { 
 			type = "item", 
@@ -280,7 +286,9 @@ local inserterTables = {
 			hand_closed_shadow = { filename = "__base__/graphics/entity/burner-inserter/burner-inserter-hand-closed-shadow.png", priority = "extra-high", width = 18, height = 41 }, 
 			hand_open_shadow = { filename = "__base__/graphics/entity/burner-inserter/burner-inserter-hand-open-shadow.png", priority = "extra-high", width = 18, height = 41 }, 
 			platform_picture = { sheet = { filename = "__K&L-Inserters__/graphics/entity/fast-long-inserter/fast-long-inserter-platform.png", priority = "extra-high", width = 46, height = 46 } }, 
-			hand_size = 1.5
+			hand_size = 1.5,
+			circuit_wire_connection_point = {shadow = {red = {0, 0}, green = {0, 0}}, wire = {red = {0, 0}, green = {0, 0}}}, 
+			circuit_wire_max_distance = 7.5
 		},
 		item = { 
 			type = "item", 
